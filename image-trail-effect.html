@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        background-color: orange;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100vw;
+        height: 100vh;
+      }
+
+      h1 {
+        font-family: "Lucida Sans";
+      }
+
+      .items {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        z-index: 1;
+      }
+
+      .item {
+        position: absolute;
+        width: 150px;
+        height: 200px;
+        background-color: black;
+        overflow: hidden;
+      }
+
+      .item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        margin-right: 100px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="items"></div>
+    <h1>Mouseu Oynat Gardash</h1>
+
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const container = document.querySelector(".items");
+        let imageIndex = 1;
+        let animationTimeout = null;
+        let currentlyPlaying = false;
+
+        function addNewItem(x, y) {
+          const newItem = document.createElement("div");
+          newItem.className = "item";
+          newItem.style.left = `${x - 75}px`;
+          newItem.style.top = `${y - 100}px`;
+
+          const img = document.createElement("img");
+          img.src = `./assets/img${imageIndex}.jpeg`;
+          newItem.appendChild(img);
+          imageIndex = (imageIndex % 14) + 1;
+
+          container.appendChild(newItem);
+          manageItemLimit();
+        }
+
+        function manageItemLimit() {
+          while (container.children.length > 20) {
+            container.removeChild(container.firstChild);
+          }
+        }
+
+        function startAnimation() {
+          if (currentlyPlaying || container.children.length === 0) return;
+          currentlyPlaying = true;
+
+          gsap.to(".item", {
+            y: 1000,
+            scale: 0.5,
+            opacity: 0,
+            duration: 0.5,
+            stagger: 0.025,
+            onComplete: function () {
+              this.targets().forEach((item) => {
+                if (item.parentNode) {
+                  item.parentNode.removeChild(item);
+                }
+              });
+              currentlyPlaying = false;
+            },
+          });
+        }
+
+        container.addEventListener("mousemove", (event) => {
+          clearTimeout(animationTimeout);
+          addNewItem(event.pageX, event.pageY);
+          animationTimeout = setTimeout(startAnimation, 100);
+        });
+      });
+    </script>
+  </body>
+</html>
